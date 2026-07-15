@@ -5,6 +5,8 @@ int main()
 	unsigned char memory[4096];
 	unsigned char V[16];
 	unsigned int I = 0;
+	unsigned char display[64 * 32]; 
+	V[0xF] = 0; // Set the VF register to 0
 	FILE* file = fopen("C:/Users/varun/OneDrive/Documents/chip8/roms/IBM Logo.ch8", "rb");
 	if (file == NULL)
 	{
@@ -67,6 +69,37 @@ int main()
 			pc = pc + 2;
 
 
+		}
+		else if (firstDigit == 0xD)
+		{
+			printf("Draw sprite at V[%d], V[%d] with height %d\n", (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4, opcode & 0x000F);	
+			int x = (opcode & 0x0F00) >> 8;
+			int y = (opcode & 0x00F0) >> 4;
+			int n = opcode & 0x000F;
+			for (int row = 0; row < n; row++)
+			{
+				unsigned char spriteByte = memory[I + row];
+				for (int col = 0; col < 8; col++)
+				{
+					int bit = (spriteByte >> (7 - col)) & 1;
+					if (bit)
+					{
+						int screenX = (V[x] + col);
+						int screenY = (V[y] + row);
+						int index = screenY * 64 + screenX;
+
+						if (screenX < 64 && screenY < 32)
+						{
+							if (display[index] == 1)
+							{
+								V[0xF] = 1;
+							}
+							display[index] ^= 1;
+						}
+					}
+				}
+			}
+			pc += 2;
 		}
 		else
 		{

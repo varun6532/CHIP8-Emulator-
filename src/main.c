@@ -2,10 +2,10 @@
 #include <stdlib.h>
 int main()
 {
-	unsigned char memory[4096];
-	unsigned char V[16];
-	unsigned int I = 0;
-	unsigned char display[64 * 32]; 
+	unsigned char memory[4096] = { 0 };
+	unsigned char V[16] = { 0 };
+	unsigned int I  = { 0 };
+	unsigned char display[64 * 32] = { 0 };
 	V[0xF] = 0; // Set the VF register to 0
 	FILE* file = fopen("C:/Users/varun/OneDrive/Documents/chip8/roms/IBM Logo.ch8", "rb");
 	if (file == NULL)
@@ -23,6 +23,7 @@ int main()
 	int pc = 0x200; // Program counter starts at 0x200
 	while (pc < 0x200 + size)
 	{
+
 		int opcode = (memory[pc] << 8) | memory[pc + 1];
 		int firstDigit = (opcode & 0xF000) >> 12;
 		if (opcode == 0x00E0)
@@ -49,7 +50,7 @@ int main()
 		}
 		else if (firstDigit == 0x6)
 		{
-			int x = opcode & 0x0F00 >> 8;
+			int x = (opcode & 0x0F00) >> 8;
 			V[x] = opcode & 0x00FF;
 			printf("Set V[%d] to %02X\n", x, opcode & 0x00FF);
 			pc += 2;
@@ -64,7 +65,7 @@ int main()
 		else if (firstDigit == 0xA)
 		{
 			int addr = (opcode & 0x0FFF);
-			I = I + addr;
+			I =  addr;
 			printf("Set I to %03X\n", I);
 			pc = pc + 2;
 
@@ -72,7 +73,7 @@ int main()
 		}
 		else if (firstDigit == 0xD)
 		{
-			printf("Draw sprite at V[%d], V[%d] with height %d\n", (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4, opcode & 0x000F);	
+			printf("Draw sprite at V[%d], V[%d] with height %d\n", (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4, opcode & 0x000F);
 			int x = (opcode & 0x0F00) >> 8;
 			int y = (opcode & 0x00F0) >> 4;
 			int n = opcode & 0x000F;
@@ -105,17 +106,26 @@ int main()
 		{
 			pc += 2;
 		}
-
-
 	}
 
-	int opcode = (memory[0x200] << 8) | memory[0x201];
-	printf("Opcode: %d\n", opcode);
-
-	for (int i = 0x200; i < 0x200 + 10; i++)
+	for (int row = 0; row < 32;row++)
 	{
-		printf("%02x ", memory[i]);
+		for (int col = 0; col < 64; col++)
+		{
+			int index = row * 64 + col;
+			if (display[index] == 1)
+			{
+				printf("X");
+			}
+			else
+			{
+				printf(".");
+			}
+			
+
+		}
+		printf("\n");
 	}
-	printf("\n");
+
 	return 0;
 }

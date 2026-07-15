@@ -17,7 +17,7 @@ int main()
 	long size = ftell(file);
 	rewind(file);
 	fread(&memory[0x200], 1, size, file);
-	fclose(file);    
+	fclose(file);
 	printf("Loaded %ld bytes into memory\n", size);
 	int lastpc = -1;
 	int pc = 0x200; // Program counter starts at 0x200
@@ -110,6 +110,19 @@ int main()
 			{
 				pc += 4;         //Skip  1  Byte
 				printf("Skip next instruction because V[%d] == %02X\n", x, addr);
+			}
+			else
+			{
+				pc += 2;
+			}
+		}
+		else if (firstDigit == 0x4)
+		{
+			int x = (opcode & 0x0F00) >> 8;
+			int addr = (opcode & 0x00FF);
+			if (V[x] != addr)
+			{
+				pc += 4;
 			}
 			else
 			{

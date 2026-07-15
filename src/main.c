@@ -16,25 +16,45 @@ int main()
 	fread(&memory[0x200], 1, size, file);
 	fclose(file);
 	printf("Loaded %ld bytes into memory\n", size);
-
-	for (int i = 0x200; i < size + 0x200; i = i + 2)
+	int lastpc = -1;
+	int pc = 0x200; // Program counter starts at 0x200
+	while(pc < 0x200 + size)
 	{
-		int w = i + 1;
-		int opcode = memory[i] << 8 | memory[w];
-		int firstdigit = (opcode & 0xF000) >> 12;
-		printf("First digit: %x\n", firstdigit);
+		int opcode = (memory[pc] << 8) | memory[pc + 1];
+		int firstDigit = (opcode & 0xF000) >> 12;
 		if (opcode == 0x00E0)
 		{
 			printf("Clear the display\n");
+			pc += 2;
 		}
-		else if (firstdigit == 0x0001)
+		else if (firstDigit == 0x1)
 		{
-			printf("Jump to address NNN\n");
+			printf("Opcode : %04X\n", opcode);
+			printf("Jump to address %03X\n", opcode & 0x0FFF);
+			if (pc == lastpc)
+			{
+				printf("Halting at address %03X\n", pc);
+				break;
+
+			}
+			else
+			{
+				lastpc = pc;
+			}
+			
+			pc = opcode & 0x0FFF;
 		}
-		else if (firstdigit == 0x0006)
+		else if (firstDigit == 0x6)
 		{
-			printf("Set Vx = NN\n");
+			printf("Set Vx to %02X\n", opcode & 0x00FF);
+			pc += 2;
 		}
+		else
+		{
+			pc += 2;
+		}
+		
+
 	}
 
 	int opcode = (memory[0x200] << 8) | memory[0x201];

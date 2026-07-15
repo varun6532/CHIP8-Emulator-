@@ -3,7 +3,7 @@
 int main()
 {
 	unsigned char memory[4096];
-
+	unsigned char V[16];
 	FILE* file = fopen("C:/Users/varun/OneDrive/Documents/chip8/roms/IBM Logo.ch8", "rb");
 	if (file == NULL)
 	{
@@ -46,7 +46,9 @@ int main()
 		}
 		else if (firstDigit == 0x6)
 		{
-			printf("Set Vx to %02X\n", opcode & 0x00FF);
+			int x = opcode & 0x0F00 >> 8;
+			V[x] = opcode & 0x00FF;
+			printf("Set V[%d] to %02X\n", x, opcode & 0x00FF);
 			pc += 2;
 		}
 		else

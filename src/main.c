@@ -4,7 +4,7 @@ int main()
 {
 	unsigned char memory[4096] = { 0 };
 	unsigned char V[16] = { 0 };
-	unsigned int I  = { 0 };
+	unsigned int I = { 0 };
 	unsigned char display[64 * 32] = { 0 };
 	V[0xF] = 0; // Set the VF register to 0
 	FILE* file = fopen("C:/Users/varun/OneDrive/Documents/chip8/roms/IBM Logo.ch8", "rb");
@@ -17,7 +17,7 @@ int main()
 	long size = ftell(file);
 	rewind(file);
 	fread(&memory[0x200], 1, size, file);
-	fclose(file);
+	fclose(file);    
 	printf("Loaded %ld bytes into memory\n", size);
 	int lastpc = -1;
 	int pc = 0x200; // Program counter starts at 0x200
@@ -65,7 +65,7 @@ int main()
 		else if (firstDigit == 0xA)
 		{
 			int addr = (opcode & 0x0FFF);
-			I =  addr;
+			I = addr;
 			printf("Set I to %03X\n", I);
 			pc = pc + 2;
 
@@ -102,6 +102,20 @@ int main()
 			}
 			pc += 2;
 		}
+		else if (firstDigit == 0x3)
+		{
+			int x = (opcode & 0x0F00) >> 8;
+			int addr = (opcode & 0x00FF);
+			if (V[x] == addr)
+			{
+				pc += 4;         //Skip  1  Byte
+				printf("Skip next instruction because V[%d] == %02X\n", x, addr);
+			}
+			else
+			{
+				pc += 2;
+			}
+		}
 		else
 		{
 			pc += 2;
@@ -121,7 +135,7 @@ int main()
 			{
 				printf(".");
 			}
-			
+
 
 		}
 		printf("\n");

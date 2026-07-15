@@ -4,6 +4,7 @@ int main()
 {
 	unsigned char memory[4096];
 	unsigned char V[16];
+	unsigned int I = 0;
 	FILE* file = fopen("C:/Users/varun/OneDrive/Documents/chip8/roms/IBM Logo.ch8", "rb");
 	if (file == NULL)
 	{
@@ -18,7 +19,7 @@ int main()
 	printf("Loaded %ld bytes into memory\n", size);
 	int lastpc = -1;
 	int pc = 0x200; // Program counter starts at 0x200
-	while(pc < 0x200 + size)
+	while (pc < 0x200 + size)
 	{
 		int opcode = (memory[pc] << 8) | memory[pc + 1];
 		int firstDigit = (opcode & 0xF000) >> 12;
@@ -41,7 +42,7 @@ int main()
 			{
 				lastpc = pc;
 			}
-			
+
 			pc = opcode & 0x0FFF;
 		}
 		else if (firstDigit == 0x6)
@@ -58,11 +59,20 @@ int main()
 			printf("Add %02x to V[%d],result: %02x\n", opcode & 0x00FF, x, V[x]);
 			pc = pc + 2;
 		}
+		else if (firstDigit == 0xA)
+		{
+			int addr = (opcode & 0x0FFF);
+			I = I + addr;
+			printf("Set I to %03X\n", I);
+			pc = pc + 2;
+
+
+		}
 		else
 		{
 			pc += 2;
 		}
-		
+
 
 	}
 

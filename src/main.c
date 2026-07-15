@@ -51,6 +51,13 @@ int main()
 			printf("Set V[%d] to %02X\n", x, opcode & 0x00FF);
 			pc += 2;
 		}
+		else if (firstDigit == 0x7)
+		{
+			int x = (opcode & 0x0F00) >> 8;
+			V[x] = (opcode & 0x00FF) + V[x];           //V[x] = V[x] + NN basically 
+			printf("Add %02x to V[%d],result: %02x\n", opcode & 0x00FF, x, V[x]);
+			pc = pc + 2;
+		}
 		else
 		{
 			pc += 2;

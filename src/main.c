@@ -16,11 +16,21 @@ int main()
 	fread(&memory[0x200], 1, size, file);
 	fclose(file);
 	printf("Loaded %ld bytes into memory\n", size);
+
+	for (int i = 0x200; i < size + 0x200; i=i+2)
+	{
+		int w = i + 1;
+		int opcode = memory[i] << 8 | memory[w];
+		printf("Values: %04x\n", opcode);
+	}
+
+	int opcode = (memory[0x200] << 8) | memory[0x201];
+	printf("Opcode: %d\n", opcode);
+
 	for (int i = 0x200; i < 0x200 + 10; i++)
 	{
-		printf("%02X ", memory[i]);
+		printf("%02x ", memory[i]);
 	}
 	printf("\n");
 	return 0;
-
 }

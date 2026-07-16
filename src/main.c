@@ -129,6 +129,14 @@ int main()
 				pc += 2;
 			}
 		}
+		else if (firstDigit == 0x8 && (opcode & 0x00F) == 0)
+		{
+			int x = (opcode & 0x0F00) >> 8;
+			int y = (opcode & 0x00F0) >> 4;
+			V[x] = V[y];
+			pc += 2;
+			printf("Set V[%d] to V[%d],result: %02x\n", x, y, V[x]);
+		}
 		else
 		{
 			pc += 2;

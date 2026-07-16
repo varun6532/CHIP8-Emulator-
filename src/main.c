@@ -6,6 +6,8 @@ int main()
 	unsigned char V[16] = { 0 };
 	unsigned int I = { 0 };
 	unsigned char display[64 * 32] = { 0 };
+	unsigned int stack[16] = {0};
+	int stackPointer = 0;
 	V[0xF] = 0; // Set the VF register to 0
 	FILE* file = fopen("C:/Users/varun/OneDrive/Documents/chip8/roms/IBM Logo.ch8", "rb");
 	if (file == NULL)
@@ -146,6 +148,27 @@ int main()
 		    printf("V[%d] populated with randomByte!! AND with %02x(NN)",x,addr);
 		    pc +=2;
 		}
+		else if(firstDigit == 0x2)
+		{
+			int addr = (opcode & 0x0FFF);
+			printf("CALL: current pc=%03X, target addr=%03X, saving return=%03X\n", pc, addr, pc+2);
+
+			stack[stackPointer] = pc +2  ;
+			printf("Stack Pointer in call value: %d\n", stackPointer);
+			++stackPointer;
+			pc = addr;
+		}
+
+		else if(opcode == 0x00EE)
+		{
+			stackPointer = stackPointer - 1;
+			printf("RETURN: current pc=%03X, return addr=%03X\n", pc,  pc+2);
+			printf("Stack Pointer in RETURN value: %d\n", stackPointer);
+			pc = stack[stackPointer];
+			printf("Return from subroutine to address %03X\n", pc);
+		}
+
+		
 		else
 		{
 			pc += 2;

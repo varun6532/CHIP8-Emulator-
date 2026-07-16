@@ -6,8 +6,10 @@ int main()
 	unsigned char V[16] = { 0 };
 	unsigned int I = { 0 };
 	unsigned char display[64 * 32] = { 0 };
-	unsigned int stack[16] = {0};
+	unsigned int stack[16] = { 0 };
 	int stackPointer = 0;
+	unsigned char delayTimer = 0;
+	unsigned char soundTimer = 0;
 	V[0xF] = 0; // Set the VF register to 0
 	FILE* file = fopen("C:/Users/varun/OneDrive/Documents/chip8/roms/IBM Logo.ch8", "rb");
 	if (file == NULL)
@@ -20,7 +22,6 @@ int main()
 	rewind(file);
 	fread(&memory[0x200], 1, size, file);
 	fclose(file);
-	printf("Loaded %ld bytes into memory\n", size);
 	int lastpc = -1;
 	int pc = 0x200; // Program counter starts at 0x200
 	while (pc < 0x200 + size)
@@ -139,36 +140,55 @@ int main()
 			pc += 2;
 			printf("Set V[%d] to V[%d],result: %02x\n", x, y, V[x]);
 		}
-		else if(firstDigit == 0xC)
+		else if (firstDigit == 0xC)
 		{
-		    int x = (opcode & 0x0F00) >> 8;
-		    int addr = (opcode & 0x00FF);
-		    int randomByte = rand() % 256;
-		    V[x] = randomByte & addr ;
-		    printf("V[%d] populated with randomByte!! AND with %02x(NN)",x,addr);
-		    pc +=2;
+			int x = (opcode & 0x0F00) >> 8;
+			int addr = (opcode & 0x00FF);
+			int randomByte = rand() % 256;
+			V[x] = randomByte & addr;
+			printf("V[%d] populated with randomByte!! AND with %02x(NN)", x, addr);
+			pc += 2;
 		}
-		else if(firstDigit == 0x2)
+		else if (firstDigit == 0x2)
 		{
 			int addr = (opcode & 0x0FFF);
-			printf("CALL: current pc=%03X, target addr=%03X, saving return=%03X\n", pc, addr, pc+2);
+			printf("CALL: current pc=%03X, target addr=%03X, saving return=%03X\n", pc, addr, pc + 2);
 
-			stack[stackPointer] = pc +2  ;
+			stack[stackPointer] = pc + 2;
 			printf("Stack Pointer in call value: %d\n", stackPointer);
 			++stackPointer;
 			pc = addr;
 		}
 
-		else if(opcode == 0x00EE)
+		else if (opcode == 0x00EE)
 		{
 			stackPointer = stackPointer - 1;
-			printf("RETURN: current pc=%03X, return addr=%03X\n", pc,  pc+2);
+			printf("RETURN: current pc=%03X, return addr=%03X\n", pc, pc + 2);
 			printf("Stack Pointer in RETURN value: %d\n", stackPointer);
 			pc = stack[stackPointer];
 			printf("Return from subroutine to address %03X\n", pc);
 		}
-
-		
+		else if (firstDigit == 0xF && (opcode & 0x000F) == 0x07)
+		{
+			int x = (opcode & 0x0F00) >> 8;
+			V[x] = delayTimer;
+			pc = pc + 2;
+			printf("Set V[%d] to delay timer value: %02x\n", x, V[x]);
+		}
+		else if (firstDigit == 0xF && (opcode & 0x00FF) == 0x15)
+		{
+			int x = (opcode & 0x0F00) >> 8;
+			delayTimer = V[x];
+			pc += 2;
+			printf("Set delay timer to V[%d], value: %02x\n", x, delayTimer);
+		}
+		else if (firstDigit == 0xF && (opcode & 0x00FF) == 0x18)
+		{
+			int x = (opcode & 0x0F00) >> 8;
+			soundTimer = V[x];
+			pc += 2;
+			printf("Set sound timer to V[%d], value: %02x\n", x, soundTimer);
+		}
 		else
 		{
 			pc += 2;

@@ -137,6 +137,15 @@ int main()
 			pc += 2;
 			printf("Set V[%d] to V[%d],result: %02x\n", x, y, V[x]);
 		}
+		else if(firstDigit == 0xC)
+		{
+		    int x = (opcode & 0x0F00) >> 8;
+		    int addr = (opcode & 0x00FF);
+		    int randomByte = rand() % 256;
+		    V[x] = randomByte & addr ;
+		    printf("V[%d] populated with randomByte!! AND with %02x(NN)",x,addr);
+		    pc +=2;
+		}
 		else
 		{
 			pc += 2;
